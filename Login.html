@@ -1,0 +1,312 @@
+    <!-- <!DOCTYPE html>
+  <html lang="en">
+    <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+
+
+  </head>
+  <body>
+    <h1></h1>
+    <script src="script 1.js"> </script>
+  </body>
+  </html>
+ -->
+
+
+<!DOCTYPE html>
+<html>
+<head>
+   
+   <script type="text/javascript" src="jquery.js"></script>
+   <style type="text/css">
+     
+body {
+background-color:white;
+}
+
+h2 { 
+  color: orangered;
+}
+submit{
+  color: greenyellow;
+}
+
+   </style>
+</head>
+<body>
+
+<script type="text/javascript">
+  
+function calculate(){
+
+
+      let input = $("#num").val();
+
+      var numbers = [];
+
+      var inputs = input.split(',');
+
+
+      for (var i = 0; i < inputs.length; i++) {
+        console.log(inputs[i]);
+        numbers.push(Number(inputs[i]));
+      }
+
+  
+      const xhr = new XMLHttpRequest();
+
+
+      // create a JSON object
+      const json = {
+          "input": numbers
+          
+      };
+
+
+      xhr.onload = () => {
+
+          // print JSON response
+          if (xhr.status >= 200 && xhr.status < 300) {
+              // parse JSON
+              const response = JSON.parse(xhr.responseText);
+              console.log(response);
+
+
+              if(response != null){
+                $("#mean").html("Mean:"+response.mean);
+                $("#median").html("Median:"+response.median);
+                $("#mode").html("Mode:"+response.mode);
+              }
+              else{
+                resetCalcFields();              
+              }  
+
+          }
+      };
+
+      // listen for `load` event
+    
+
+      // open request
+      xhr.open('POST', 'http://localhost:8090/user/getCalc');
+
+      // set `Content-Type` header
+      xhr.setRequestHeader('Content-Type', 'application/json');
+
+      // send rquest with JSON payload
+      xhr.send(JSON.stringify(json));
+
+}
+
+function login(){
+
+
+      var email = $("#lemail").val();
+  
+      var password= $("#lpassword").val();
+
+      const xhr = new XMLHttpRequest();
+
+
+      // create a JSON object
+      const json = {
+          "email": email,
+          "password": password
+      };
+
+      // listen for `load` event
+      xhr.onload = () => {
+
+          // print JSON response
+          if (xhr.status >= 200 && xhr.status < 300) {
+              // parse JSON
+              const response = JSON.parse(xhr.responseText);
+              console.log(response);
+
+
+              if(response == null)
+                alert("User Not found");
+              else{
+                resetLoginFields();
+                showCalculation(response);
+              }  
+
+          }
+      };
+
+      // open request
+      xhr.open('POST', 'http://localhost:8090/user/getUser');
+
+      // set `Content-Type` header
+      xhr.setRequestHeader('Content-Type', 'application/json');
+
+      // send rquest with JSON payload
+      xhr.send(JSON.stringify(json));
+
+}
+
+function registerUser(){
+
+
+  var fname = $("#fname").val();
+  var email = $("#email").val();
+  var password = $("#password").val();
+  var cpassword = $("#cpassword").val();
+
+  if(password != cpassword){
+    alert("Password and confirm password should be same");
+    return;
+  }
+
+
+  const xhr = new XMLHttpRequest();
+
+
+  // create a JSON object
+  const json = {
+      "name": fname,
+      "email": email,
+      "password": password,
+      "status":1
+  };
+
+  // listen for `load` event
+  xhr.onload = () => {
+
+      // print JSON response
+      if (xhr.status >= 200 && xhr.status < 300) {
+          // parse JSON
+          const response = JSON.parse(xhr.responseText);
+          console.log(response);
+
+          alert("User registered successfully");
+
+          resetAll();
+
+      }
+  };
+
+  // open request
+  xhr.open('POST', 'http://localhost:8090/user/create');
+
+  // set `Content-Type` header
+  xhr.setRequestHeader('Content-Type', 'application/json');
+
+  // send rquest with JSON payload
+  xhr.send(JSON.stringify(json));
+
+}
+
+function resetAll(){
+  $("#fname").val("");
+  $("#email").val("");
+  $("#password").val("");
+  $("#cpassword").val("");
+}
+
+function resetLoginFields(){
+  $("#lemail").val("");
+  $("#lpassword").val("");
+}
+
+function resetCalcFields(){
+  $("#num").val("");
+  $("#mean").html("Mean:");
+  $("#median").html("Median:");
+  $("#mode").html("Mode:");
+
+}
+
+function showReg(){
+  $('#registration').show();
+  $('#login').hide();
+  $('#calculation').hide();
+}
+
+function showLogin(){
+  $('#registration').hide();
+  $('#login').show();
+  $('#calculation').hide();
+}
+
+function showCalculation(response){
+  $('#registration').hide();
+  $('#login').hide();
+  $('#calculation').show();
+
+  $('#userdetail').text(response.name);
+
+}
+
+
+
+</script>
+
+
+<br><br>
+<div align="center" id="header">
+  <input type="button" value="Registration" onclick="showReg()">
+  <input type="button" value="Login" onclick="showLogin()">
+</div>
+<br><br>
+
+<div align="center" id="registration">
+  <h2>Registration</h2>
+  <form>
+    <label for="fname">Name:</label><br>
+    <input type="text" id="fname" name="fname" value=""><br><br>
+
+    <label for="email">Email:</label><br>
+    <input type="email" id="email" name="email" value=""><br><br>
+
+    <label for="password">Password:</label><br>
+    <input type="text" id="password" name="password" value=""><br><br>
+
+    <label for="cpassword">Confirm Password:</label><br>
+    <input type="password" id="cpassword" name="cpassword" value=""><br><br>
+
+    <input type="button" value="Submit" onclick="registerUser()">
+    <input type="button" value="Reset" onclick="resetAll()">
+  </form> 
+</div>
+  
+<div align="center" id="login" hidden>
+  <h2>Login</h2>
+  <form>   
+    <label for="lemail">Email:</label><br>
+    <input type="email" id="lemail" name="lemail" value=""><br><br> 
+
+    <label for="lpassword">Password:</label><br>
+    <input type="password" id="lpassword" name="lpassword" value=""><br><br>
+
+    <input type="button" value="Login" onclick="login()">
+    <input type="button" value="Reset" onclick="resetLoginFields()">
+  </form> 
+</div>
+
+<div align="center" id="calculation" hidden>
+  <h2 >Welcome <span id="userdetail"></span></h2>
+  <form>   
+    <label for="num">Enter Numbers:</label><br>
+    <input type="textarea" id="num" name="num" value=""><br><br> 
+
+    <label for="mean" id="mean">Mean:</label><br>
+    <label for="median" id="median">Median:</label><br>
+    <label for="mode" id="mode">Mode:</label><br>
+    
+    <input type="button" value="Reset" onclick="resetCalcFields()">
+
+
+     <input type="button" value="Calculate" onclick="calculate()">
+  </form> 
+</div>
+
+
+
+</body>
+</html>
+
+
